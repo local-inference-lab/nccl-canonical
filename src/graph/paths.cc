@@ -384,9 +384,12 @@ ncclResult_t ncclTopoCheckP2p(struct ncclComm* comm, struct ncclTopoSystem* syst
 
   int arch, vendor, model;
   NCCLCHECK(ncclTopoCpuType(system, &arch, &vendor, &model));
-  // Allow P2P between pairs of GPU devices on AMD systems
-  if ((arch == NCCL_TOPO_CPU_ARCH_X86 && vendor == NCCL_TOPO_CPU_VENDOR_AMD) && system->nodes[DEV].count <= 2)
-    p2pLevel = PATH_SYS;
+  // AMD multi-GPU hosts commonly place same-socket GPUs below separate PCIe
+  // root complexes. PHB-level P2P keeps those transfers on the direct CUDA
+  // transport instead of routing them through host shared memory.
+  if (arch == NCCL_TOPO_CPU_ARCH_X86 && vendor == NCCL_TOPO_CPU_VENDOR_AMD) {
+    p2pLevel = system->nodes[DEV].count <= 2 ? PATH_SYS : PATH_PHB;
+  }
 
   // User override
   NCCLCHECK(ncclGetUserP2pLevel(&p2pLevel));
