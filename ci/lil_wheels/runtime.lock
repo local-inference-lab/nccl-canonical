@@ -1,0 +1,16 @@
+format=local-inference-nccl-wheel-runtime/v1
+status=research-only
+python.version=3.12
+cuda.version=13.3
+nccl.version=2.31.2
+cuda.arch-list=12.0
+builder.image=nvcr.io/nvidia/pytorch:26.07-py3@sha256:2140e699b3beaf7f96a0081fd9c9406bc3832b435cdb60dfa2d261f7d2f34a1c
+build.max-jobs=48
+buildx.builder=lil-flashinfer-cu133-sm120
+buildx.memory-high-bytes=257698037760
+buildx.memory-bytes=274877906944
+buildx.swap-max-bytes=0
+buildx.tasks-max=8192
+buildx.cpuset=64-127
+buildx.cpu-quota=6400000
+buildx.cpu-period=100000
