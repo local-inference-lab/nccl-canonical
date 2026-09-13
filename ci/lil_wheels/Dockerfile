@@ -21,7 +21,8 @@ RUN --mount=type=cache,id=lil-nccl-cu133-sm120-build,target=/src/nccl/build,shar
  && strings /src/nccl/build/lib/libnccl.so.2.31.2 \
       | grep -F 'NCCL version 2.31.2 compiled with CUDA 13.3'
 
-RUN mkdir -p \
+RUN --mount=type=cache,id=lil-nccl-cu133-sm120-build,target=/src/nccl/build,sharing=locked \
+    mkdir -p \
       ci/lil_wheels/package/local_inference_nccl/lib \
       ci/lil_wheels/package/local_inference_nccl/include \
       /artifacts/wheels /artifacts/native/nccl/lib /artifacts/native/nccl/include \
