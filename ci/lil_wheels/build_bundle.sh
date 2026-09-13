@@ -89,5 +89,8 @@ archive="${output_dir}/local-inference-nccl-cu133-${commit}.tar.zst"
 tar --sort=name --mtime="@${source_date_epoch}" \
   --owner=0 --group=0 --numeric-owner --zstd \
   -C "${output_dir}/bundle" -cf "${archive}" .
-sha256sum "${archive}" > "${archive}.sha256"
+(
+  cd "${output_dir}"
+  sha256sum "$(basename "${archive}")"
+) > "${archive}.sha256"
 printf '%s\n' "${archive}"
