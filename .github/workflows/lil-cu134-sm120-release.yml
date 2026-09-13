@@ -17,7 +17,8 @@ jobs:
   build-and-publish:
     if: github.repository == 'local-inference-lab/nccl-canonical'
     runs-on: [self-hosted, lil-wheel-builder]
-    timeout-minutes: 360
+    # Six hours for the shared-worker lock plus six hours for compilation.
+    timeout-minutes: 720
     steps:
       - name: Check out the exact NCCL source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -25,7 +26,10 @@ jobs:
           fetch-depth: 0
 
       - name: Build and verify the wheel and native archive
-        run: ci/lil_wheels/build_bundle.sh
+        run: >-
+          flock --exclusive --wait 21600
+          /var/lib/github-flashinfer/locks/cu134-sm120-build.lock
+          ci/lil_wheels/build_bundle.sh
 
       - name: Publish immutable source-addressed assets
         env:
