@@ -19,7 +19,7 @@ source_date_epoch=$(git -C "${repo_root}" show -s --format=%ct HEAD)
 base_version=$(value nccl.version)
 package_version="${base_version}+lil.cu133.sm120.g${commit:0:12}"
 release_tag=${NCCL_RELEASE_TAG:-"nccl-cu133-sm120-${commit}"}
-test -z "$(git -C "${repo_root}" status --porcelain --untracked-files=no)"
+test -z "$(git -C "${repo_root}" status --porcelain)"
 "${tool_dir}/ensure_builder.sh"
 
 mkdir -p "$(dirname "${output_dir}")"
