@@ -1,16 +1,16 @@
-name: LIL NCCL CUDA 13.3 SM120 release
+name: LIL NCCL CUDA 13.4 SM120 release
 
 on:
   push:
     branches:
-      - canonical/cu133-nccl2312-amd-turin
+      - canonical/cu134-nccl2312-amd-turin
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: lil-nccl-cu133-sm120
+  group: lil-nccl-cu134-sm120
   cancel-in-progress: false
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag="nccl-cu133-sm120-${GITHUB_SHA}"
+          tag="nccl-cu134-sm120-${GITHUB_SHA}"
           if gh release view "${tag}" >/dev/null 2>&1; then
             echo "Immutable release ${tag} already exists; no assets were replaced."
             exit 0
@@ -40,11 +40,11 @@ jobs:
           gh release create "${tag}" \
             --target "${GITHUB_SHA}" \
             --prerelease \
-            --title "LIL NCCL CUDA 13.3 SM120 ${GITHUB_SHA:0:12}" \
-            --notes "Source-addressed NCCL wheel and native runtime for CUDA 13.3 and SM120." \
-            dist/lil-nccl-cu133-sm120/bundle/wheels/*.whl \
-            dist/lil-nccl-cu133-sm120/bundle/manifest.json \
-            dist/lil-nccl-cu133-sm120/bundle/requirements-github.txt \
-            dist/lil-nccl-cu133-sm120/bundle/SHA256SUMS \
-            dist/lil-nccl-cu133-sm120/local-inference-nccl-cu133-*.tar.zst \
-            dist/lil-nccl-cu133-sm120/local-inference-nccl-cu133-*.tar.zst.sha256
+            --title "LIL NCCL CUDA 13.4 SM120 ${GITHUB_SHA:0:12}" \
+            --notes "Source-addressed NCCL wheel and native runtime for CUDA 13.4 and SM120." \
+            dist/lil-nccl-cu134-sm120/bundle/wheels/*.whl \
+            dist/lil-nccl-cu134-sm120/bundle/manifest.json \
+            dist/lil-nccl-cu134-sm120/bundle/requirements-github.txt \
+            dist/lil-nccl-cu134-sm120/bundle/SHA256SUMS \
+            dist/lil-nccl-cu134-sm120/local-inference-nccl-cu134-*.tar.zst \
+            dist/lil-nccl-cu134-sm120/local-inference-nccl-cu134-*.tar.zst.sha256

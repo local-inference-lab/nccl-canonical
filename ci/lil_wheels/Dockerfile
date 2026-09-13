@@ -14,14 +14,14 @@ COPY . /src/nccl
 WORKDIR /src/nccl
 RUN test "$(git rev-parse HEAD 2>/dev/null || true)" = "" \
  || test "$(git rev-parse HEAD)" = "${NCCL_SOURCE_COMMIT}"
-RUN --mount=type=cache,id=lil-nccl-cu133-sm120-build,target=/src/nccl/build,sharing=locked \
+RUN --mount=type=cache,id=lil-nccl-cu134-sm120-build,target=/src/nccl/build,sharing=locked \
     make -j"${BUILD_JOBS}" src.build \
       CUDA_HOME="${CUDA_HOME}" NVCC_GENCODE="${NVCC_GENCODE}" \
  && test -f "/src/nccl/build/lib/libnccl.so.2.31.2" \
  && strings /src/nccl/build/lib/libnccl.so.2.31.2 \
-      | grep -F 'NCCL version 2.31.2 compiled with CUDA 13.3'
+      | grep -F 'NCCL version 2.31.2 compiled with CUDA 13.4'
 
-RUN --mount=type=cache,id=lil-nccl-cu133-sm120-build,target=/src/nccl/build,sharing=locked \
+RUN --mount=type=cache,id=lil-nccl-cu134-sm120-build,target=/src/nccl/build,sharing=locked \
     mkdir -p \
       ci/lil_wheels/package/local_inference_nccl/lib \
       ci/lil_wheels/package/local_inference_nccl/include \
@@ -37,7 +37,7 @@ RUN --mount=type=cache,id=lil-nccl-cu133-sm120-build,target=/src/nccl/build,shar
       SOURCE_DATE_EPOCH="${NCCL_SOURCE_DATE_EPOCH}" \
       python -m pip wheel --no-build-isolation --no-deps \
         --wheel-dir /artifacts/wheels ci/lil_wheels/package \
- && test "$(find /artifacts/wheels -maxdepth 1 -name 'local_inference_nccl_cu133-*.whl' | wc -l)" -eq 1 \
+ && test "$(find /artifacts/wheels -maxdepth 1 -name 'local_inference_nccl_cu134-*.whl' | wc -l)" -eq 1 \
  && install -m 0755 build/lib/libnccl.so.2.31.2 \
       /artifacts/native/nccl/lib/libnccl.so.2.31.2 \
  && ln -s libnccl.so.2.31.2 /artifacts/native/nccl/lib/libnccl.so.2 \
@@ -59,7 +59,7 @@ import os
 
 import local_inference_nccl
 
-assert importlib.metadata.version("local-inference-nccl-cu133") == os.environ["EXPECTED_VERSION"]
+assert importlib.metadata.version("local-inference-nccl-cu134") == os.environ["EXPECTED_VERSION"]
 assert local_inference_nccl.SOURCE_COMMIT == os.environ["EXPECTED_COMMIT"]
 assert (local_inference_nccl.include_path() / "nccl_device" / "core.h").is_file()
 library = ctypes.CDLL(str(local_inference_nccl.library_path()))

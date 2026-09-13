@@ -13,9 +13,9 @@ class BinaryDistribution(Distribution):
 
 
 setup(
-    name="local-inference-nccl-cu133",
+    name="local-inference-nccl-cu134",
     version=os.environ["LOCAL_INFERENCE_NCCL_PACKAGE_VERSION"],
-    description="Source-addressed NCCL runtime for LIL CUDA 13.3 SM120 serving",
+    description="Source-addressed NCCL runtime for LIL CUDA 13.4 SM120 serving",
     packages=["local_inference_nccl"],
     package_data={"local_inference_nccl": ["lib/*", "include/*", "include/**/*"]},
     include_package_data=True,

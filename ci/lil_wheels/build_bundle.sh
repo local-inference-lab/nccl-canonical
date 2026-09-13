@@ -5,7 +5,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 tool_dir="${repo_root}/ci/lil_wheels"
 lock_path="${tool_dir}/runtime.lock"
-output_dir=${1:-"${repo_root}/dist/lil-nccl-cu133-sm120"}
+output_dir=${1:-"${repo_root}/dist/lil-nccl-cu134-sm120"}
 value() {
   local key=$1
   awk -F= -v key="${key}" \
@@ -17,8 +17,8 @@ commit=$(git -C "${repo_root}" rev-parse HEAD)
 tree=$(git -C "${repo_root}" rev-parse 'HEAD^{tree}')
 source_date_epoch=$(git -C "${repo_root}" show -s --format=%ct HEAD)
 base_version=$(value nccl.version)
-package_version="${base_version}+lil.cu133.sm120.g${commit:0:12}"
-release_tag=${NCCL_RELEASE_TAG:-"nccl-cu133-sm120-${commit}"}
+package_version="${base_version}+lil.cu134.sm120.g${commit:0:12}"
+release_tag=${NCCL_RELEASE_TAG:-"nccl-cu134-sm120-${commit}"}
 test -z "$(git -C "${repo_root}" status --porcelain)"
 "${tool_dir}/ensure_builder.sh"
 
@@ -44,7 +44,7 @@ docker buildx build \
 mkdir -p "${output_dir}/bundle"
 cp -a "${output_dir}/raw/." "${output_dir}/bundle/"
 wheel=$(find "${output_dir}/bundle/wheels" -maxdepth 1 \
-  -name 'local_inference_nccl_cu133-*.whl' -print -quit)
+  -name 'local_inference_nccl_cu134-*.whl' -print -quit)
 test -n "${wheel}"
 wheel_sha=$(sha256sum "${wheel}" | awk '{print $1}')
 library="${output_dir}/bundle/native/nccl/lib/libnccl.so.2.31.2"
@@ -52,7 +52,7 @@ library_sha=$(sha256sum "${library}" | awk '{print $1}')
 
 repository=${GITHUB_REPOSITORY:-local-inference-lab/nccl-canonical}
 wheel_url="https://github.com/${repository}/releases/download/${release_tag}/$(basename "${wheel}")"
-printf 'local-inference-nccl-cu133 @ %s --hash=sha256:%s\n' \
+printf 'local-inference-nccl-cu134 @ %s --hash=sha256:%s\n' \
   "${wheel_url}" "${wheel_sha}" \
   > "${output_dir}/bundle/requirements-github.txt"
 
@@ -65,7 +65,7 @@ jq -n \
   --arg library_sha "${library_sha}" \
   --arg cuda "$(value cuda.version)" \
   '{
-    schema: "local-inference-nccl-cu133-release/v1",
+    schema: "local-inference-nccl-cu134-release/v1",
     status: $status,
     source: {repository: $repository, commit: $commit, tree: $tree},
     package_version: $package_version,
@@ -85,7 +85,7 @@ cp "${lock_path}" "${output_dir}/bundle/"
   sha256sum manifest.json requirements-github.txt runtime.lock
 ) > "${output_dir}/bundle/SHA256SUMS"
 
-archive="${output_dir}/local-inference-nccl-cu133-${commit}.tar.zst"
+archive="${output_dir}/local-inference-nccl-cu134-${commit}.tar.zst"
 tar --sort=name --mtime="@${source_date_epoch}" \
   --owner=0 --group=0 --numeric-owner --zstd \
   -C "${output_dir}/bundle" -cf "${archive}" .

@@ -1,12 +1,12 @@
-# CUDA 13.3 SM120 NCCL release
+# CUDA 13.4 SM120 NCCL release
 
 Status: **research-only**
 
 The release workflow compiles NCCL 2.31.2 from the source commit on
-`canonical/cu133-nccl2312-amd-turin`. It emits the same compiled library in two
+`canonical/cu134-nccl2312-amd-turin`. It emits the same compiled library in two
 formats:
 
-- `local-inference-nccl-cu133`, a platform wheel containing the shared library,
+- `local-inference-nccl-cu134`, a platform wheel containing the shared library,
   headers, source identity, and a path-discovery command;
 - a native prefix under `native/nccl` for Docker and non-Python consumers.
 
