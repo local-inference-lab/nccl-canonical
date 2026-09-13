@@ -28,6 +28,8 @@ RUN --mount=type=cache,id=lil-nccl-cu134-sm120-build,target=/src/nccl/build,shar
       /artifacts/wheels /artifacts/native/nccl/lib /artifacts/native/nccl/include \
  && install -m 0755 build/lib/libnccl.so.2.31.2 \
       ci/lil_wheels/package/local_inference_nccl/lib/libnccl.so.2.31.2 \
+ && patchelf --set-rpath '$ORIGIN/../../nvidia/cu13/lib' \
+      ci/lil_wheels/package/local_inference_nccl/lib/libnccl.so.2.31.2 \
  && cp -a build/include/. \
       ci/lil_wheels/package/local_inference_nccl/include/ \
  && printf 'NCCL_VERSION = "2.31.2"\nSOURCE_COMMIT = "%s"\n' \
