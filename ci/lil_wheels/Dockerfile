@@ -28,7 +28,7 @@ RUN --mount=type=cache,id=lil-nccl-cu133-sm120-build,target=/src/nccl/build,shar
       /artifacts/wheels /artifacts/native/nccl/lib /artifacts/native/nccl/include \
  && install -m 0755 build/lib/libnccl.so.2.31.2 \
       ci/lil_wheels/package/local_inference_nccl/lib/libnccl.so.2.31.2 \
- && install -m 0644 build/include/nccl.h build/include/nccl_device.h \
+ && cp -a build/include/. \
       ci/lil_wheels/package/local_inference_nccl/include/ \
  && printf 'NCCL_VERSION = "2.31.2"\nSOURCE_COMMIT = "%s"\n' \
       "${NCCL_SOURCE_COMMIT}" \
@@ -42,8 +42,7 @@ RUN --mount=type=cache,id=lil-nccl-cu133-sm120-build,target=/src/nccl/build,shar
       /artifacts/native/nccl/lib/libnccl.so.2.31.2 \
  && ln -s libnccl.so.2.31.2 /artifacts/native/nccl/lib/libnccl.so.2 \
  && ln -s libnccl.so.2 /artifacts/native/nccl/lib/libnccl.so \
- && install -m 0644 build/include/nccl.h build/include/nccl_device.h \
-      /artifacts/native/nccl/include/
+ && cp -a build/include/. /artifacts/native/nccl/include/
 
 FROM ${BUILDER_IMAGE} AS validate
 ARG NCCL_PACKAGE_VERSION
@@ -62,6 +61,7 @@ import local_inference_nccl
 
 assert importlib.metadata.version("local-inference-nccl-cu133") == os.environ["EXPECTED_VERSION"]
 assert local_inference_nccl.SOURCE_COMMIT == os.environ["EXPECTED_COMMIT"]
+assert (local_inference_nccl.include_path() / "nccl_device" / "core.h").is_file()
 library = ctypes.CDLL(str(local_inference_nccl.library_path()))
 version = ctypes.c_int()
 assert library.ncclGetVersion(ctypes.byref(version)) == 0

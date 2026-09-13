@@ -17,7 +17,7 @@ setup(
     version=os.environ["LOCAL_INFERENCE_NCCL_PACKAGE_VERSION"],
     description="Source-addressed NCCL runtime for LIL CUDA 13.3 SM120 serving",
     packages=["local_inference_nccl"],
-    package_data={"local_inference_nccl": ["lib/*", "include/*"]},
+    package_data={"local_inference_nccl": ["lib/*", "include/*", "include/**/*"]},
     include_package_data=True,
     python_requires=">=3.12,<3.13",
     distclass=BinaryDistribution,
