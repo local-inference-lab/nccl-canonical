@@ -1,0 +1,60 @@
+name: LIL NCCL CUDA 13.4 SM120 release
+
+on:
+  push:
+    branches:
+      - canonical/cu134-nccl2312-amd-turin
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lil-nccl-cu134-sm120
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    if: github.repository == 'local-inference-lab/nccl-canonical'
+    runs-on: [self-hosted, lil-wheel-builder]
+    # Lock and compilation budgets plus one hour for checkout and publication.
+    timeout-minutes: 780
+    steps:
+      - name: Check out the exact NCCL source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build and verify the wheel and native archive
+        run: >-
+          flock --exclusive --wait 21600
+          /var/lib/github-flashinfer/locks/cu134-sm120-build.lock
+          ci/lil_wheels/build_bundle.sh
+
+      - name: Publish immutable source-addressed assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="nccl-cu134-sm120-${GITHUB_SHA}"
+          if gh release view "${tag}" >/dev/null 2>&1; then
+            mkdir existing-release
+            gh release download "${tag}" --dir existing-release
+            python3 ci/lil_wheels/verify_release_assets.py \
+              --directory existing-release \
+              --build-directory dist/lil-nccl-cu134-sm120 \
+              --source-commit "${GITHUB_SHA}"
+            exit 0
+          fi
+          gh release create "${tag}" \
+            --target "${GITHUB_SHA}" \
+            --prerelease \
+            --title "LIL NCCL CUDA 13.4 SM120 ${GITHUB_SHA:0:12}" \
+            --notes "Source-addressed NCCL wheel and native runtime for CUDA 13.4 and SM120." \
+            dist/lil-nccl-cu134-sm120/bundle/wheels/*.whl \
+            dist/lil-nccl-cu134-sm120/bundle/manifest.json \
+            dist/lil-nccl-cu134-sm120/bundle/requirements-github.txt \
+            dist/lil-nccl-cu134-sm120/bundle/SHA256SUMS \
+            dist/lil-nccl-cu134-sm120/local-inference-nccl-cu134-*.tar.zst \
+            dist/lil-nccl-cu134-sm120/local-inference-nccl-cu134-*.tar.zst.sha256
