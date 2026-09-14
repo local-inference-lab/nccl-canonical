@@ -17,13 +17,14 @@ jobs:
   build-and-publish:
     if: github.repository == 'local-inference-lab/nccl-canonical'
     runs-on: [self-hosted, lil-wheel-builder]
-    # Six hours for the shared-worker lock plus six hours for compilation.
-    timeout-minutes: 720
+    # Lock and compilation budgets plus one hour for checkout and publication.
+    timeout-minutes: 780
     steps:
       - name: Check out the exact NCCL source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Build and verify the wheel and native archive
         run: >-
@@ -38,7 +39,12 @@ jobs:
           set -euo pipefail
           tag="nccl-cu134-sm120-${GITHUB_SHA}"
           if gh release view "${tag}" >/dev/null 2>&1; then
-            echo "Immutable release ${tag} already exists; no assets were replaced."
+            mkdir existing-release
+            gh release download "${tag}" --dir existing-release
+            python3 ci/lil_wheels/verify_release_assets.py \
+              --directory existing-release \
+              --build-directory dist/lil-nccl-cu134-sm120 \
+              --source-commit "${GITHUB_SHA}"
             exit 0
           fi
           gh release create "${tag}" \
