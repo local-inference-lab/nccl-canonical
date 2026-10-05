@@ -7,6 +7,8 @@ ARG BUILD_JOBS=48
 ARG NCCL_PACKAGE_VERSION
 ARG NCCL_SOURCE_COMMIT
 ARG NCCL_SOURCE_DATE_EPOCH
+# Empty for linux/amd64 so its existing caches stay valid.
+ARG CACHE_PLATFORM=
 ENV CUDA_HOME=/usr/local/cuda \
     NVCC_GENCODE="-gencode=arch=compute_120,code=sm_120 -gencode=arch=compute_120,code=compute_120"
 
@@ -14,14 +16,14 @@ COPY . /src/nccl
 WORKDIR /src/nccl
 RUN test "$(git rev-parse HEAD 2>/dev/null || true)" = "" \
  || test "$(git rev-parse HEAD)" = "${NCCL_SOURCE_COMMIT}"
-RUN --mount=type=cache,id=lil-nccl-cu134-sm120-build,target=/src/nccl/build,sharing=locked \
+RUN --mount=type=cache,id=lil-nccl-cu134-sm120${CACHE_PLATFORM}-build,target=/src/nccl/build,sharing=locked \
     make -j"${BUILD_JOBS}" src.build \
       CUDA_HOME="${CUDA_HOME}" NVCC_GENCODE="${NVCC_GENCODE}" \
  && test -f "/src/nccl/build/lib/libnccl.so.2.31.2" \
  && strings /src/nccl/build/lib/libnccl.so.2.31.2 \
       | grep -F 'NCCL version 2.31.2 compiled with CUDA 13.4'
 
-RUN --mount=type=cache,id=lil-nccl-cu134-sm120-build,target=/src/nccl/build,sharing=locked \
+RUN --mount=type=cache,id=lil-nccl-cu134-sm120${CACHE_PLATFORM}-build,target=/src/nccl/build,sharing=locked \
     mkdir -p \
       ci/lil_wheels/package/local_inference_nccl/lib \
       ci/lil_wheels/package/local_inference_nccl/include \
