@@ -1,0 +1,10 @@
+format=local-inference-nccl-wheel-runtime/v1
+status=research-only
+platform=linux/arm64
+python.version=3.12
+cuda.version=13.4
+nccl.version=2.31.2
+cuda.arch-list=12.0
+builder.image=nvcr.io/nvidia/pytorch@sha256:237ecf9ac7373daf91b31bb4f86651ce1ce57b676366ed435aa1aba61dad81d5
+build.max-jobs=48
+buildx.builder=lil-wheel-cu134-arm64
